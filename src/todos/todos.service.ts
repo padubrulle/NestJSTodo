@@ -1,5 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { Todo } from './interfaces/todo.interface';
+import { CreateTodoDto } from './dto/create-todo.dto';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class TodosService {
@@ -23,10 +25,25 @@ export class TodosService {
     return this.todos;
   }
 
-  create(todo: Todo): void {
-    if (todo.id === undefined) {
-      todo.id = this.todos.length + 1;
+  findOne(id: string): Todo {
+    return this.todos.find((todo) => todo.id.toString() === id);
+  }
+
+  create(todo: CreateTodoDto): Todo {
+    const newTodo: Todo = todo;
+    if (newTodo.id === undefined) {
+      newTodo.id = this.todos.length + 1;
     }
-    this.todos = [...this.todos, todo];
+    this.todos = [...this.todos, newTodo];
+    return newTodo;
+  }
+
+  update(id: string, todo: CreateTodoDto): Todo {
+    const toDoToUpdate = this.findOne(id);
+    if (!toDoToUpdate) {
+      throw new NotFoundException('Todo not found');
+    }
+    Object.assign(toDoToUpdate, todo);
+    return toDoToUpdate;
   }
 }
