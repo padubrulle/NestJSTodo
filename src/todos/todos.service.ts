@@ -46,4 +46,14 @@ export class TodosService {
     Object.assign(toDoToUpdate, todo);
     return toDoToUpdate;
   }
+
+  delete(id: string): string {
+    const toDoToDelete = this.findOne(id);
+    if (!toDoToDelete) {
+      throw new NotFoundException('Todo not found');
+    } else {
+      this.todos = this.todos.filter((todo) => todo.id !== Number(id));
+      return `La todo avec l'id : ${id} a été supprimée`;
+    }
+  }
 }
