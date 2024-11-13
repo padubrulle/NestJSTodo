@@ -1,7 +1,6 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Todo } from './interfaces/todo.interface';
 import { CreateTodoDto } from './dto/create-todo.dto';
-import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class TodosService {
@@ -38,22 +37,28 @@ export class TodosService {
     return newTodo;
   }
 
-  update(id: string, todo: CreateTodoDto): Todo {
+  update(id: string, todo: CreateTodoDto) {
     const toDoToUpdate = this.findOne(id);
     if (!toDoToUpdate) {
       throw new NotFoundException('Todo not found');
+    } else {
+      Object.assign(toDoToUpdate, todo);
+      return { updatedTodo: true, toDoToUpdate };
     }
-    Object.assign(toDoToUpdate, todo);
-    return toDoToUpdate;
   }
 
-  delete(id: string): string {
+  delete(id: string) {
     const toDoToDelete = this.findOne(id);
+    const todoCountBefore = this.todos.length;
     if (!toDoToDelete) {
       throw new NotFoundException('Todo not found');
     } else {
-      this.todos = this.todos.filter((todo) => todo.id !== Number(id));
-      return `La todo avec l'id : ${id} a été supprimée`;
+      this.todos = [...this.todos.filter((todo) => todo.id.toString() !== id)];
+      if (todoCountBefore > this.todos.length) {
+        return { deletedTodo: 0, toDoToDelete };
+      } else {
+        return { deletedTodo: 0 };
+      }
     }
   }
 }
