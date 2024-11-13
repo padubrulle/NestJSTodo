@@ -22,4 +22,11 @@ export class TodosService {
   findAll(): Todo[] {
     return this.todos;
   }
+
+  create(todo: Todo): void {
+    if (todo.id === undefined) {
+      todo.id = this.todos.length + 1;
+    }
+    this.todos = [...this.todos, todo];
+  }
 }
